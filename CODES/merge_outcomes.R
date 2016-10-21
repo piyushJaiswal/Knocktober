@@ -28,3 +28,5 @@ dim(train)
 
 train = merge(train,all_camps, by = c("Patient_ID","Health_Camp_ID"), all.x=T)
 sum(train$Outcome, na.rm=T)
+train[is.na(Outcome),Outcome:=0]
+write.csv(train,file="train_with_Outcome.csv", row.names=F)
