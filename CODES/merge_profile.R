@@ -29,6 +29,8 @@ summary(profile)
 #.....................................
 train = merge(train, profile, by = c("Patient_ID"))
 
+write.csv(train,file="../DERIVED/train_all_merged.csv", row.names = F)
+#.....................................
 train.orig = copy(train)
 dates = sort(unique(train$Camp_Start_Date))
 val <- train[Camp_Start_Date %in% dates[31:40],]
@@ -70,8 +72,18 @@ model_xgb <- xgboost(data=as.matrix(x_train),label = y_train, nrounds = 500,
 imp_xgb = xgb.importance(model = model_xgb, feature_names = colnames(x_train))
 write.csv(imp_xgb, file = "../MODEL/imp_xgb.csv", row.names=F)
 
+#......................................
+library(pROC)
 
+preds_xgb = predict(model_xgb,newdata = as.matrix(x_val))
+auc_xgb = auc(y_val,preds_xgb)
+print(auc_xgb)
 
+preds_xgb[preds_xgb>0.2727756]=1
+preds_xgb[preds_xgb<0.2727756]=0
 
+#......................................
+library(caret)
+c = confusionMatrix(preds_xgb,y_val,positive = "1")
 
 
