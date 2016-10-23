@@ -7,7 +7,7 @@ test = data.table(test)
 test.orig = copy(test)
 drop.cols = c("Patient_ID", "Health_Camp_ID", "Registration_Date",
               "Camp_Start_Date", "Camp_End_Date", "First_Interaction", 
-              "Employer_Category", "time_association")
+              "Employer_Category")
 test <- subset(test,select = !(colnames(test)%in% drop.cols))
 
 #...............................
@@ -26,5 +26,5 @@ test.orig[,Outcome:=preds_xgb_test]
 #...............................
 scored <- subset(test.orig, select = c(Patient_ID,Health_Camp_ID,Outcome))
 
-write.csv(scored, file="../DERIVED/Submission_V3.csv", row.names=F)
+write.csv(scored, file="../DERIVED/Submission_V8.csv", row.names=F)
 

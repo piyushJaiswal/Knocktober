@@ -54,11 +54,31 @@ total.registrations.camp <- function(df){
 patient.outcome.sum <- function(df){
   df <- data.table(df)
   setorder(df,"Patient_ID","Registration_Date")
-  df$patient_outcome_sum <- as.integer(-123)
-  df[,patient_outcome_sum := cumsum(Outcome), by=list(Patient_ID)]
+  #df$patient_outcome_sum <- as.integer(-123)
+  df[,patient_outcome_sum := (cumsum(Outcome)-Outcome), by=list(Patient_ID)]
   df$patient_outcome_sum[df$patient_outcome_sum == -123] <- NA
   df[registration_num_overall ==0,patient_outcome_sum:=NA]
   return (df)
 }
 
+consecutive.camps.interval <- function(df){
+  
+  df <- data.table(df)
+  
+  #get last date of ongoing camp in city
+  city_camp <- unique(df[!(is.na(City_Type)),c("Health_Camp_ID","Camp_Start_Date","Category1","City_Type"),with=F])
+  setorder(city_camp,"City_Type","Category1","Camp_Start_Date")
+  city_camp[,tmp_ind := 1:.N,by = c("City_Type","Category1")]
+  city_camp[,prev_Camp_Start_Date := c(NA,as.Date(Camp_Start_Date[-.N])),by = c("City_Type","Category1")]
+  city_camp[,prev_Camp_Start_Date := as.Date(prev_Camp_Start_Date, origin = "1970-01-01")]
+  city_camp[,last_camp_time_diff:= as.numeric(Camp_Start_Date - prev_Camp_Start_Date)]
+  
+  city_camp[is.na(last_camp_time_diff), last_camp_time_diff:=-1]
+  #setorder(df,"city_type","Category1","Camp_Start_Date")
+  
+  df <- merge(df, city_camp[,c("City_Type","Health_Camp_ID","last_camp_time_diff"),with=F], 
+              by = c("City_Type","Health_Camp_ID"), all.x=T )
+  
+  return(df)
+}
 
