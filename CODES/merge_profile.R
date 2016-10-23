@@ -8,6 +8,17 @@ train[,":="(Camp_Start_Month = as.integer(strftime(Camp_Start_Date,"%m")),
             Registration_Month = as.integer(strftime(Registration_Date,"%m")),
             Registration_wkDay = as.integer(strftime(Registration_Date,"%u")))]
 summary(train)
+
+#....................................
+test = read.csv("../DERIVED/test_camp_details.csv")
+test = data.table(test)
+
+test[,":="(Camp_Start_Month = as.integer(strftime(Camp_Start_Date,"%m")),
+            Camp_Start_wkDay = as.integer(strftime(Camp_Start_Date,"%u")),
+            Registration_Month = as.integer(strftime(Registration_Date,"%m")),
+            Registration_wkDay = as.integer(strftime(Registration_Date,"%u")))]
+summary(test)
+
 #....................................
 profile = read.csv("../RAW/Patient_Profile.CSV")
 profile = data.table(profile)
@@ -26,10 +37,15 @@ profile[,(cols_withBlank):=lapply(.SD,function(x){x[x==""]=NA
 profile[,":="(Education_Score = as.numeric(as.character(Education_Score)),
                Age = as.integer(as.character(Education_Score)))]
 summary(profile)
+
 #.....................................
 train = merge(train, profile, by = c("Patient_ID"))
+test = merge(test, profile, by = c("Patient_ID"))
 
 write.csv(train,file="../DERIVED/train_all_merged.csv", row.names = F)
+write.csv(test,file="../DERIVED/test_all_merged.csv", row.names = F)
+
+#.....................................
 #.....................................
 train.orig = copy(train)
 dates = sort(unique(train$Camp_Start_Date))
