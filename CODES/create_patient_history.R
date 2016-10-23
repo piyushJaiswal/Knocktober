@@ -15,6 +15,11 @@ train <- registration.around.campStart(df=train)
 train <- num.repeated.registration(df = train)
 train <- time.of.association(df=train)
 train <- total.registrations.camp(df=train)
+train <- patient.outcome.sum(df=train)
+train$con_rate <- train$registration_num_overall / train$patient_outcome_sum
+train$con_rate[is.infinite(train$con_rate) ] <- NA
+
+head(train)
 
 summary(train)
 sapply(train,class)

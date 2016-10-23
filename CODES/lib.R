@@ -50,3 +50,15 @@ total.registrations.camp <- function(df){
   
   return(df)
 }
+
+patient.outcome.sum <- function(df){
+  df <- data.table(df)
+  setorder(df,"Patient_ID","Registration_Date")
+  df$patient_outcome_sum <- as.integer(-123)
+  df[,patient_outcome_sum := cumsum(Outcome), by=list(Patient_ID)]
+  df$patient_outcome_sum[df$patient_outcome_sum == -123] <- NA
+  df[registration_num_overall ==0,patient_outcome_sum:=NA]
+  return (df)
+}
+
+
